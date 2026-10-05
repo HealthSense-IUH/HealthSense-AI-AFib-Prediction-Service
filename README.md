@@ -1,117 +1,109 @@
 # HealthSense AI Service
 
-## Tiếng Việt
+FastAPI service for PPG-based suspected-AF screening. The default model is
+**V6C stacking**: ExtraTrees, RandomForest and XGBoost feed a StandardScaler +
+LogisticRegression meta model. Inference returns the raw meta probability;
+the research calibrator and temporal alert rules are not enabled.
 
-**HealthSense AI Service** là microservice dự đoán trạng thái sức khỏe từ tín hiệu PPG (nhịp tim), được phát triển trên nền tảng FastAPI (Python).
+## Models
 
-### Chức năng chính
-- Nhận dữ liệu cảm biến PPG thô từ ESP32 hoặc Spring Boot Backend (REST API + RabbitMQ/S3).
-- Xử lý tín hiệu pipeline v4 (đồng bộ 100% với repo HealthSense-ML, có parity test): Butterworth bandpass 0.5–8 Hz, dò nhịp theo prominence, lọc sinh lý NN 250–2000 ms.
-- Trích xuất 16 đặc trưng HRV chuẩn Task Force 1996 (SampEn thật, phổ Welch) + **SQI** — tín hiệu kém trả "chất lượng không đủ" thay vì đoán bừa.
-- Phát hiện Rung Nhĩ (AFib) bằng model **`v4.pkl`** (XGBoost + Scaler, huấn luyện 60 bệnh nhân MIMIC + AFDB, kiểm định LOSO + cross-dataset không data leakage — chi tiết: `app/models/v4.json`).
+Place both files in `app/models/` when running locally:
 
-### Công nghệ
-- **Framework:** FastAPI 0.115+
-- **Ngôn ngữ:** Python 3.12+
-- **Thư viện xử lý tín hiệu:** SciPy, NumPy
-- **Thư viện ML:** Scikit-learn, XGBoost, Joblib
-- **Validation:** Pydantic v2
+- `v6_stacking.pkl` (approximately 1.88 GB).
+- `v6_stacking.json` (matching model card and SHA-256).
 
-### Cấu trúc dự án
-Dự án được tổ chức theo mô hình Router-Schema-Service (tương tự Controller-DTO-Service trong Spring Boot):
-- `routers/prediction.py`: Định nghĩa các API endpoint (POST /predict, GET /health).
-- `schemas/health_data.py`: Định nghĩa cấu trúc dữ liệu Request/Response (Pydantic).
-- `services/hrv_v4.py`: Xử lý tín hiệu + 16 đặc trưng HRV + SQI (bản đồng bộ với ML Lab — sửa phải chạy `tests/parity_check.py`).
-- `services/feature_engineering.py`: Trích xuất 16 đặc trưng HRV (SDNN, RMSSD, LF/HF, ...).
-- `services/prediction.py`: Load model và thực hiện dự đoán. Model được **kiểm tra trước khi nạp**: phải là sklearn Pipeline có bước tiền xử lý đi kèm, và chỉ đòi những đặc trưng service tính được. Không đạt thì bị từ chối và model đang chạy giữ nguyên.
+The service defaults to `MODEL_FILE=v6_stacking.pkl`. Legacy `v4.pkl` remains
+supported when explicitly selected. Model switches validate the feature schema
+and preprocessing; a failed switch preserves the active model. V6 loading
+checks the model hash and card feature order before activating the bundle.
 
-### Cài đặt và Sử dụng
-1. Tạo môi trường ảo và cài đặt thư viện:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-2. Chạy server:
-   ```bash
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-3. Mở Swagger UI tại `http://localhost:8000/docs` để xem và test API.
+The service extracts HRV features with the existing signal/SQI pipeline and
+adds `PPG_AC`: the mean absolute normalized autocorrelation over non-zero lags,
+matching the V6 training implementation. V6 consumes the 14 features declared
+in its bundle/card.
 
-### API Endpoints
+## Local use
 
-| Method | Path | Mô tả |
-|--------|------|-------|
-| GET | `/` | Trang chủ |
-| GET | `/api/health` | Kiểm tra trạng thái server, model đang dùng và số đặc trưng |
-| GET | `/api/models` | Liệt kê toàn bộ các file model (.pkl, .joblib) có trong `app/models/` kèm metadata |
-| POST | `/api/models/active` | Chuyển đổi nóng model AI đang chạy mà không cần restart server (model mới phải qua kiểm tra, xem bên dưới) |
+```bash
+python -m venv venv
+# Activate the virtual environment, then:
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-> **Quy ước đặt tên:** mỗi model là `vN.pkl` kèm thẻ `vN.json` cùng tên (thẻ ghi
-> phiên bản, đặc trưng, dữ liệu huấn luyện, điểm số và leakage đã biết).
->
-> | File | Model | Nạp được? |
-> |------|-------|-----------|
-> | `v1.pkl` `v2.pkl` `v3.pkl` | Hiện vật học tập từ ML-Lab (pipeline còn leakage) | ❌ không khai `feature_names_in_` |
-> | **`v4.pkl`** | **XGBoost 4.1.0 — model triển khai duy nhất** | ✅ mặc định |
->
-> **Chỉ `v4.pkl` phục vụ dự đoán.** Các file còn lại có trong `GET /api/models`
-> để đối chiếu lịch sử, nhưng `POST /api/models/active` sẽ từ chối chúng và giữ
-> nguyên model đang chạy.
->
-> Vì sao phải chặn: thư mục này từng chứa `best_model_8165.pkl` (đời v3) — một
-> `MLPClassifier` **trần, không kèm scaler**, huấn luyện trên dữ liệu đã chuẩn
-> hóa toàn cục từ trước. Nạp nó rồi đưa đặc trưng thô vào thì kết quả sai hoàn
-> toàn **mà không có lỗi nào báo ra**. Nên `load_model()` từ chối mọi model
-> không đóng gói tiền xử lý trong Pipeline, không khai tên đặc trưng, hoặc đòi
-> đặc trưng service không tính được.
-| POST | `/api/predict` | Nhận mảng RR intervals, trả về dự đoán AFib |
-| POST | `/api/predict-csv` | Tải lên file CSV chứa tín hiệu PPG thô để dự đoán |
+Download the two model files manually into `app/models/`, or set
+`GOOGLE_DRIVE_MODEL_URL` and `GOOGLE_DRIVE_MODEL_CARD_URL` in your environment:
 
----
+```bash
+python -m pip install 'gdown==5.2.0' 'google-auth[requests]>=2.0,<3.0'
+python scripts/download_drive_models.py
+python -m app.services.verify_model
+```
 
-## English
+The download dependencies are CI tooling and are not required by the running service.
 
-**HealthSense AI Service** is a microservice that predicts health status from PPG (Photoplethysmography) signals, built with FastAPI (Python).
+## CI/CD
 
-### Key Features
-- Receives raw PPG sensor data from ESP32 or Spring Boot Backend via REST API.
-- Signal preprocessing: removes Baseline Wander using Butterworth Bandpass Filter.
-- Extracts 16 HRV (Heart Rate Variability) features following the Task Force 1996 standard.
-- Predicts health status (Sitting, Walking, ...) using a Random Forest model.
+On a push to `main`, the Docker job downloads the model pair from Google Drive
+into `app/models/`, verifies it, then builds and pushes the Docker image to
+Docker Hub. The image includes both files and defaults to V6. A Docker build
+smoke check loads the actual model and predicts from synthetic PPG; failure
+stops image publication.
 
-### Tech Stack
-- **Framework:** FastAPI 0.115+
-- **Language:** Python 3.12+
-- **Signal Processing:** SciPy, NumPy
-- **Machine Learning:** Scikit-learn, Joblib
-- **Validation:** Pydantic v2
+Configure repository Actions secrets:
 
-### Project Structure
-Organized following the Router-Schema-Service pattern (similar to Controller-DTO-Service in Spring Boot):
-- `routers/prediction.py`: API endpoint definitions (POST /predict, GET /health).
-- `schemas/health_data.py`: Request/Response data structures (Pydantic models).
-- `services/preprocessing.py`: PPG signal filtering (Bandpass Filter, Peak Detection).
-- `services/feature_engineering.py`: 16 HRV feature extraction (SDNN, RMSSD, LF/HF, ...).
-- `services/prediction.py`: Model loading and inference.
+| Secret | Value |
+|--------|-------|
+| `GOOGLE_DRIVE_MODEL_URL` | Drive share link for `v6_stacking.pkl` |
+| `GOOGLE_DRIVE_MODEL_CARD_URL` | Drive share link for `v6_stacking.json` |
+| `GOOGLE_DRIVE_CREDENTIALS` | Optional Google service account JSON key for private files |
+| `DOCKERHUB_USERNAME` | Docker Hub account |
+| `DOCKERHUB_TOKEN` | Docker Hub access token |
 
-### Installation and Usage
-1. Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-2. Run the server:
-   ```bash
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-3. Open Swagger UI at `http://localhost:8000/docs` to explore and test the API.
+Public files need **Anyone with the link / Viewer** access. For private files,
+enable Google Drive API for the service account, share both files with its
+email as Viewer, and configure `GOOGLE_DRIVE_CREDENTIALS`.
 
-### API Endpoints
+GitHub Actions caches the pair and verifies the pinned model SHA-256 and card
+on every build. Access errors, incomplete downloads and checksum mismatches
+stop the job. For a new artifact, update the link secrets, checksum in
+`scripts/download_drive_models.py`, and workflow cache key together.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/` | Root page |
-| GET | `/api/v1/health` | Server health check |
-| POST | `/api/v1/predict` | Receive sensor data, return prediction |
+Publishing an image does not replace the running server. Deploy the new image
+and check `GET /api/health`: `active_model_file` should be `v6_stacking.pkl`,
+`model_version` should identify the V6 research freeze, and `feature_count`
+should be 14. Remove any old `MODEL_FILE=v4.pkl` override from deployment
+environment variables or `.env` if V6 is intended.
+
+## API
+
+Swagger: `/docs`.
+
+| Method | Path | Behavior |
+|--------|------|----------|
+| GET | `/` | Service version |
+| GET | `/api/health` | Active model/version/features; HTTP 503 if no model is loaded |
+| GET | `/api/models` | List model files and card metadata without loading inactive models into RAM |
+| POST | `/api/models/active` | Select a validated model from `app/models` |
+| POST | `/api/predict` | RR intervals plus `ppg_ac` for V6 |
+| POST | `/api/predict-csv` | Raw PPG CSV; computes all V6 features automatically |
+
+CSV columns: `Time(ms)` + `IR`, or `time` + `ppg`. RabbitMQ/S3 processing
+also computes `PPG_AC` automatically from the recording.
+
+RR intervals alone cannot reconstruct PPG autocorrelation. A V6 request to
+`/api/predict` must provide `ppg_ac` computed from the same raw PPG window;
+otherwise it returns HTTP 422 instead of substituting zero. Workout-muted
+requests keep their existing behavior.
+
+## Checks
+
+```bash
+ruff check .
+ruff format --check .
+python -m unittest discover -s tests -p 'test_v6.py'
+python -m app.services.verify_model
+```
+
+The Docker smoke check verifies loading and execution, not clinical performance.
+Research evaluation and scope are described in the model card.

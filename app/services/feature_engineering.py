@@ -12,12 +12,17 @@ import numpy as np
 from scipy.signal import butter, filtfilt
 
 from app.services.hrv_v4 import (
+    HRV_FEATURE_NAMES,
     PoorSignalQualityError,
     extract_features_from_ppg,
     extract_features_from_rr,
 )
+from app.services.ppg_features import ppg_autocorrelation
+
+SUPPORTED_FEATURE_NAMES = (*HRV_FEATURE_NAMES, "PPG_AC")
 
 __all__ = [
+    "SUPPORTED_FEATURE_NAMES",
     "PoorSignalQualityError",
     "butter_bandpass_filter",
     "extract_features_from_csv_data",
@@ -36,9 +41,11 @@ def extract_features_from_csv_data(time_ms_array, ppg_array, fs: float = 125.0) 
     Raise PoorSignalQualityError khi tín hiệu không đủ chất lượng —
     caller nên báo "chất lượng tín hiệu kém" thay vì trả kết quả đoán bừa.
     """
-    return extract_features_from_ppg(
+    features = extract_features_from_ppg(
         np.asarray(time_ms_array, dtype=float), np.asarray(ppg_array, dtype=float), fs=fs
     )
+    features["PPG_AC"] = ppg_autocorrelation(ppg_array, fs)
+    return features
 
 
 def butter_bandpass_filter(data, lowcut=0.5, highcut=8.0, fs=125.0, order=3):

@@ -36,6 +36,8 @@ models_router = APIRouter(prefix="/api", tags=["Model Management"])
 @router.get("/health", response_model=HealthCheckResponse)
 async def health_check():
     """Kiểm tra trạng thái hoạt động của AI Service và model hiện tại."""
+    if not prediction_service.is_model_loaded:
+        raise HTTPException(status_code=503, detail="Configured AI model is not loaded.")
     return HealthCheckResponse(
         status="ok",
         model_loaded=prediction_service.is_model_loaded,
@@ -86,6 +88,8 @@ async def predict(request: SensorDataRequest):
     try:
         # Lọc sinh lý + SQI nằm trong extract_hrv_features (pipeline v4)
         features = extract_hrv_features(request.rr_intervals)
+        if request.ppg_ac is not None:
+            features["PPG_AC"] = request.ppg_ac
         prediction_label, confidence = prediction_service.predict(features)
 
         return PredictionResponse(
@@ -99,6 +103,8 @@ async def predict(request: SensorDataRequest):
         raise
     except PoorSignalQualityError as pe:
         raise HTTPException(status_code=422, detail=str(pe)) from pe
+    except ValueError as ve:
+        raise HTTPException(status_code=422, detail=str(ve)) from ve
     except Exception as e:
         raise HTTPException(
             status_code=500,

@@ -9,6 +9,13 @@ class SensorDataRequest(BaseModel):
     """
 
     rr_intervals: list[float] = Field(..., description="Mảng R-R intervals (tính bằng mili-giây)")
+    ppg_ac: float | None = Field(
+        default=None,
+        ge=0,
+        le=1,
+        allow_inf_nan=False,
+        description="V6 PPG autocorrelation, computed from the same raw PPG window. Required for RR-only inference with V6.",
+    )
     is_workout_active: bool = Field(
         default=False,
         description="Cờ trạng thái phiên tập luyện. Nếu True, bỏ qua dự đoán AFib do nhiễu vận động.",
@@ -18,6 +25,7 @@ class SensorDataRequest(BaseModel):
 class HRVFeatures(BaseModel):
     """13 đặc trưng được trích xuất bằng toán học (Khớp 100% với mô hình Random Forest)."""
 
+    PPG_AC: float | None = Field(None, description="Mean absolute normalized PPG autocorrelation")
     HR_mean: float | None = Field(None, description="Nhịp tim trung bình (BPM)")
     Mean_NN: float | None = Field(None, description="Khoảng R-R trung bình (ms)")
     SDNN: float | None = Field(None, description="Độ lệch chuẩn R-R (ms)")
@@ -48,7 +56,7 @@ class PredictionResponse(BaseModel):
             "Phiên bản model đang sử dụng, đọc từ thẻ model đi kèm (VD: 'v4.1.0', "
             "lấy từ app/models/v4.json). Nếu model không có thẻ thì chỉ hiện tên file."
         ),
-        examples=["v4.1.0"],
+        examples=["V6_RESEARCH_FREEZE_2026_09"],
     )
 
 
@@ -83,19 +91,10 @@ class ModelListResponse(BaseModel):
 
 
 class SelectModelRequest(BaseModel):
-    """Yêu cầu chuyển đổi model đang hoạt động.
-
-    Model được kiểm tra trước khi thay: phải là sklearn Pipeline có bước tiền
-    xử lý đi kèm, và chỉ đòi những đặc trưng service tính được. Không đạt thì
-    bị từ chối và model đang chạy giữ nguyên.
-    """
+    """Select a validated V6 stacking bundle or legacy preprocessing pipeline."""
 
     model_file: str = Field(
         ...,
-        description=(
-            "Tên file model trong thư mục app/models. "
-            "Quy ước vN.pkl; hiện chỉ v4.pkl (pipeline v4, không leakage) nạp được. "
-            "Gọi GET /api/models để xem danh sách thực tế."
-        ),
-        examples=["v4.pkl"],
+        description="File name inside app/models, e.g. v6_stacking.pkl (default) or v4.pkl.",
+        examples=["v6_stacking.pkl", "v4.pkl"],
     )

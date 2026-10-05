@@ -21,12 +21,8 @@ class Settings(BaseSettings):
     AWS_S3_REGION: str = os.getenv("AWS_S3_REGION", "us-east-1")
     AWS_S3_ENDPOINT_URL: str = os.getenv("AWS_S3_ENDPOINT_URL", "")
 
-    # AI Model Config
-    # v4.pkl: XGBoost + Scaler (pipeline v4, không leakage, kiểm định LOSO +
-    # cross-dataset). Xem thẻ đi kèm app/models/v4.json.
-    #
-    # Quy ước đặt tên trong app/models: `vN.pkl` + thẻ `vN.json` cùng tên.
-    MODEL_FILE: str = os.getenv("MODEL_FILE", "v4.pkl")
+    # V6C stacking bundle and matching JSON card, downloaded before Docker build.
+    MODEL_FILE: str = os.getenv("MODEL_FILE", "v6_stacking.pkl")
 
     # Core Service Webhook URL
     CORE_CALLBACK_URL: str = os.getenv("CORE_CALLBACK_URL", "")

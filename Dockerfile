@@ -24,6 +24,11 @@ COPY --from=builder /install /usr/local
 # Copy source code
 COPY ./app ./app
 
+ENV MODEL_FILE=v6_stacking.pkl
+
+# Refuse to publish an image if the configured model cannot load or predict.
+RUN python -m app.services.verify_model
+
 # Tạo thư mục models và gán quyền cho appuser
 RUN mkdir -p ./app/models && chown -R appuser:appuser ./app
 
