@@ -24,9 +24,9 @@ import joblib
 import pandas as pd
 
 # --- Bản gốc ML Lab ---
-from healthsense_ml import config as lab_config
-from healthsense_ml.hrv_features import compute_hrv_features as lab_features
-from healthsense_ml.signal_processing import extract_nn_series as lab_nn
+from healthsense_core import config as lab_config
+from healthsense_core.hrv_features import compute_hrv_features as lab_features
+from healthsense_core.signal_processing import extract_nn_series as lab_nn
 
 # --- Bản service (vendored) ---
 from app.services.hrv_v4 import extract_features_from_ppg

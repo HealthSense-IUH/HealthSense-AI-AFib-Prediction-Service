@@ -1,7 +1,7 @@
 """Xử lý tín hiệu PPG và trích đặc trưng HRV — bản v4 (đồng bộ với ML Lab).
 
 Đây là bản sao có kiểm soát (vendored copy) của pipeline huấn luyện v4 trong
-repo HealthSense-ML (`src/healthsense_ml/signal_processing.py` +
+repo HealthSense-ML (`src/healthsense_core/signal_processing.py` +
 `hrv_features.py`). Model `v4.pkl` được huấn luyện
 bằng CHÍNH các hàm này — mọi thay đổi ở đây phải đồng bộ 2 phía và chạy lại
 parity test (`tests/parity_check.py`), nếu không đặc trưng đưa vào model sẽ
@@ -20,7 +20,7 @@ import numpy as np
 from scipy import signal as sp_signal
 from scipy.interpolate import interp1d
 
-# ===== Hằng số đồng bộ với healthsense_ml.config =====
+# ===== Hằng số đồng bộ với healthsense_core.config =====
 BANDPASS_LOW = 0.5
 BANDPASS_HIGH = 8.0
 BANDPASS_ORDER = 4
@@ -35,7 +35,7 @@ VLF_LOW, LF_LOW, LF_HIGH, HF_HIGH = 0.0033, 0.04, 0.15, 0.4
 RESAMPLE_FS = 4.0
 
 # 16 đặc trưng HRV mà `compute_hrv_features()` sinh ra — đồng bộ với
-# `healthsense_ml.config.ALL_FEATURES` bên ML Lab. Đây là TOÀN BỘ những gì
+# `healthsense_core.config.ALL_FEATURES` bên ML Lab. Đây là TOÀN BỘ những gì
 # service tính được; model nào đòi đặc trưng ngoài danh sách này thì service
 # không phục vụ nổi và sẽ bị từ chối lúc nạp (xem services/prediction.py).
 HRV_FEATURE_NAMES = (
