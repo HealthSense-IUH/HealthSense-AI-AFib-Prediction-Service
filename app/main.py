@@ -1,4 +1,4 @@
-"""HealthSense AI Service - FastAPI Application.
+"""HealthSense AI AFib Prediction Service - FastAPI Application.
 
 Microservice chuyên phục vụ ML inference cho dự án HealthSense.
 Nhận dữ liệu cảm biến PPG, trích xuất đặc trưng HRV, và trả về dự đoán trạng thái sức khỏe.
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="HealthSense AI Service",
+    title="HealthSense AI AFib Prediction Service",
     description=(
         "PPG-based suspected-AF screening using V6C stacking "
         "(ExtraTrees, RandomForest, XGBoost and a scaled logistic meta model). "
@@ -51,7 +51,7 @@ app.include_router(prediction.models_router)
 async def root():
     """Trang chủ API."""
     return {
-        "service": "HealthSense AI Service",
+        "service": "HealthSense AI AFib Prediction Service",
         "version": "0.4.0-v6-model",
         "docs": "/docs",
     }

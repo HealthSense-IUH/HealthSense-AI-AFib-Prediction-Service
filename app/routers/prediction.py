@@ -35,7 +35,7 @@ models_router = APIRouter(prefix="/api", tags=["Model Management"])
 
 @router.get("/health", response_model=HealthCheckResponse)
 async def health_check():
-    """Kiểm tra trạng thái hoạt động của AI Service và model hiện tại."""
+    """Kiểm tra trạng thái hoạt động của AI AFib Prediction Service và model hiện tại."""
     if not prediction_service.is_model_loaded:
         raise HTTPException(status_code=503, detail="Configured AI model is not loaded.")
     return HealthCheckResponse(

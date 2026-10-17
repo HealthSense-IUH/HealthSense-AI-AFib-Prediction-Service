@@ -1,4 +1,4 @@
-"""Cấu hình ứng dụng HealthSense AI Service."""
+"""Cấu hình ứng dụng HealthSense AI AFib Prediction Service."""
 
 import os
 
@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # App Config
-    APP_NAME: str = os.getenv("APP_NAME", "HealthSense AI Service")
+    APP_NAME: str = os.getenv("APP_NAME", "HealthSense AI AFib Prediction Service")
     DEBUG: bool = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
 
     # RabbitMQ Config

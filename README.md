@@ -1,4 +1,4 @@
-# HealthSense AI Service
+# HealthSense AI AFib Prediction Service
 
 FastAPI service for PPG-based suspected-AF screening. The default model is
 **V6C stacking**: ExtraTrees, RandomForest and XGBoost feed a StandardScaler +

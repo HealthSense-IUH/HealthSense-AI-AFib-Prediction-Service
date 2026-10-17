@@ -1,9 +1,9 @@
 services:
-  ai-service:
+  ai-afib-prediction-service:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ${REGISTRY:-healthsense}/${IMAGE_NAME:-ai-service}:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-healthsense}/${IMAGE_NAME:-ai-afib-prediction-service}:${IMAGE_TAG:-latest}
     ports:
       - "8000:8000"
     environment:

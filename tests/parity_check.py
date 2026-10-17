@@ -1,5 +1,5 @@
 # ruff: noqa: E402  (bắt buộc chèn sys.path trước khi import 2 package cần so sánh)
-"""Parity check: đặc trưng + dự đoán của AI-Service phải khớp ML Lab.
+"""Parity check: đặc trưng + dự đoán của AI AFib Prediction Service phải khớp ML Lab.
 
 Model v4 được huấn luyện bằng code trong HealthSense-ML; service dùng bản
 vendored (app/services/hrv_v4.py). Test này bảo đảm 2 bản cho ra CÙNG kết quả
