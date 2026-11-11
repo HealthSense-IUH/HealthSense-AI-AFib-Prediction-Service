@@ -60,12 +60,16 @@ scikit-learn 1.9.1, XGBoost 3.4.0); see `docs/benchmark_v6_mimic_perform_af.json
 
 | Quantity | Value |
 |---|---|
-| Model file | 1,790 MiB |
-| Start-up (SHA-256 check + loading) | 6.2 s |
-| Process memory after loading | 1.98 GB (+1.84 GB for the model) |
-| Window analysis per 72 s recording (5 windows: quality gate, features, model, rule) | median 1.03 s, 95th percentile 1.15 s |
-| Model call per window | median 184 ms, 95th percentile 253 ms |
+| Model file | 1.88 GB |
+| Model components in memory | Extra Trees 1.44 GB (500 trees, 18.0 M nodes), Random Forest 0.43 GB (500 trees, 5.4 M nodes), XGBoost 2.5 MB |
+| Start-up (SHA-256 check + loading) | 6.0 s |
+| Process memory after loading | 2.08 GB (+1.92 GB for the model) |
+| Window analysis per 72 s recording (5 windows: quality gate, features, model, rule) | median 0.94 s, 95th percentile 1.05 s |
+| Model call per window | median 164 ms, 95th percentile 234 ms |
 | Windows accepted by the quality gate | 699 / 700 |
+
+Over four runs on the same machine, the median time per recording ranged from
+0.94 to 1.03 s and the median model call from 164 to 184 ms; start-up took 6–7 s.
 
 The timing excludes the S3 download, the whole-recording display features and
 the callback to the Core Service. MIMIC PERform AF is part of the training

@@ -116,6 +116,29 @@ def cpu_name() -> str:
     return platform.processor()
 
 
+def component_sizes(model) -> dict:
+    """Kích thước trong bộ nhớ của từng base learner: mảng nút cây (scikit-learn) hoặc booster."""
+    sizes = {}
+    if not isinstance(model, dict):
+        return sizes
+    for name, est in model["base_models"].items():
+        inner = est.steps[-1][1] if hasattr(est, "steps") else est
+        if hasattr(inner, "get_booster"):
+            sizes[name] = {"booster_mb": round(len(inner.get_booster().save_raw()) / 1e6, 2)}
+        elif hasattr(inner, "estimators_"):
+            trees = [t.tree_ for t in inner.estimators_]
+            states = [t.__getstate__() for t in trees]
+            sizes[name] = {
+                "trees": len(trees),
+                "nodes": int(sum(t.node_count for t in trees)),
+                "median_depth": int(np.median([t.max_depth for t in trees])),
+                "tree_arrays_gb": round(
+                    sum(s["nodes"].nbytes + s["values"].nbytes for s in states) / 1e9, 3
+                ),
+            }
+    return sizes
+
+
 def summarise(values: list[float]) -> dict:
     arr = np.asarray(values, dtype=float)
     return {
@@ -177,7 +200,7 @@ def main() -> None:
             "processor": cpu_name(),
             "logical_cpus": psutil.cpu_count(logical=True),
             "physical_cpus": psutil.cpu_count(logical=False),
-            "ram_gb": round(vm.total / 1024**3, 1),
+            "ram_gib": round(vm.total / 1024**3, 1),
             "python": platform.python_version(),
             "packages": {
                 name: __import__(name).__version__
@@ -185,10 +208,11 @@ def main() -> None:
             },
         },
         "model": {
-            "file_size_mb": round(args.model.stat().st_size / 1024**2, 1),
+            "file_size_gb": round(args.model.stat().st_size / 1e9, 3),
             "startup_s_sha256_and_load": round(startup_s, 2),
-            "rss_increase_mb": round((rss_after - rss_before) / 1024**2, 1),
-            "rss_after_load_mb": round(rss_after / 1024**2, 1),
+            "rss_increase_gb": round((rss_after - rss_before) / 1e9, 3),
+            "rss_after_load_gb": round(rss_after / 1e9, 3),
+            "components": component_sizes(service.model),
         },
         "recordings": len(files),
         "excerpts": len(rows),
