@@ -73,6 +73,23 @@ jobs:
     - name: Check V6 inference and PPG feature parity
       run: python -m unittest discover -s tests -p 'test_v6.py'
 
+    - name: Check out ML Lab for feature parity
+      uses: actions/checkout@v4
+      with:
+        repository: HealthSense-IUH/HealthSense-MachineLearning-Lab
+        path: ml-lab
+        sparse-checkout: |
+          src
+          data/raw/mimic_perform
+          notebooks/v5/scripts
+          notebooks/v6/scripts
+
+    - name: Check feature parity with ML Lab
+      env:
+        ML_LAB_PATH: ml-lab
+        PARITY_REQUIRED: "1"
+      run: python -m unittest tests.test_parity_v6 -v
+
   docker:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
