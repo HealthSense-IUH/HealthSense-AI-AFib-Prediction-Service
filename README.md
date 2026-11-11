@@ -2,8 +2,32 @@
 
 FastAPI service for PPG-based suspected-AF screening. The default model is
 **V6C stacking**: ExtraTrees, RandomForest and XGBoost feed a StandardScaler +
-LogisticRegression meta model. Inference returns the raw meta probability;
-the research calibrator and temporal alert rules are not enabled.
+LogisticRegression meta model. Each 30 s window returns the raw meta probability;
+the temporal persistence rule turns the window results into an alert decision.
+The research Platt calibrator is not enabled.
+
+## Processing
+
+The RabbitMQ consumer and `POST /api/predict-csv` prepare a recording with the
+same function, `app/services/recording.py`:
+
+1. convert the time column to milliseconds if it is in seconds;
+2. estimate the sampling rate from the first 100 samples;
+3. drop the first 2 s (sensor start-up transient). A 72 s recording from the
+   mobile app leaves 70 s.
+
+`app/services/windowing.py` then splits the signal into 30 s windows with a
+10 s step (five windows for 70 s). Each window passes the signal-quality gate
+(spectral concentration ≥ 0.70, ≥ 10 valid beats, ≥ 80 % valid NN intervals,
+heart rate 30–220 bpm) before its 14 features go to the model.
+
+The temporal persistence rule raises an alert if either branch holds:
+
+- P_meta ≥ 0.80 with base-learner disagreement σ ≤ 0.05 in 5 consecutive windows;
+- P_meta ≥ 0.90 with σ ≤ 0.05 in 2 consecutive windows.
+
+A rejected window resets both counters. The thresholds are the frozen values of
+the research protocol (ML Lab `results/v6/FROZEN_GLOBAL_RULE_V2.json`).
 
 ## Models
 
@@ -101,9 +125,13 @@ requests keep their existing behavior.
 ```bash
 ruff check .
 ruff format --check .
-python -m unittest discover -s tests -p 'test_v6.py'
+python -m unittest discover -s tests -p 'test_*.py'
 python -m app.services.verify_model
 ```
+
+`tests/test_parity_v6.py` compares feature extraction with the ML Lab code. It
+needs a checkout of HealthSense-MachineLearning-Lab next to this repository, or
+`ML_LAB_PATH`; otherwise it is skipped locally. CI runs it with the checkout.
 
 The Docker smoke check verifies loading and execution, not clinical performance.
 Research evaluation and scope are described in the model card.

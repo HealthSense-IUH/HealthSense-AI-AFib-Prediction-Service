@@ -11,6 +11,7 @@ import pandas as pd
 from app.config import settings
 from app.services.feature_engineering import extract_features_from_csv_data
 from app.services.prediction import prediction_service
+from app.services.recording import prepare_recording
 from app.services.s3_client import s3_client
 from app.services.windowing import analyse_recording
 
@@ -91,31 +92,10 @@ class RabbitMQConsumer:
             if time_col not in df.columns or ppg_col not in df.columns:
                 raise ValueError(f"File CSV thiếu cột '{time_col}' hoặc '{ppg_col}'")
 
-            time_ms_array = np.asarray(df[time_col].values, dtype=float)
-            ppg_array = np.asarray(df[ppg_col].values, dtype=float)
-
-            if np.max(time_ms_array) < 100000 and np.mean(np.diff(time_ms_array)) < 1.0:
-                time_ms_array = time_ms_array * 1000.0
-
-            fs = 125.0
-            if len(time_ms_array) >= 2:
-                dt = np.mean(np.diff(time_ms_array[: min(100, len(time_ms_array))])) / 1000.0
-                if dt > 0:
-                    fs = 1.0 / dt
-
-            # Bỏ 2 giây dữ liệu đầu tiên (2000ms) để loại bỏ nhiễu khởi động cảm biến / transient
-            skip_ms = 2000.0
-            if len(time_ms_array) > 0:
-                start_time = time_ms_array[0]
-                valid_mask = time_ms_array >= (start_time + skip_ms)
-                if np.sum(valid_mask) >= 100:
-                    time_ms_array = time_ms_array[valid_mask]
-                    ppg_array = ppg_array[valid_mask]
-                else:
-                    cut_samples = int(2.0 * fs)
-                    if len(time_ms_array) > cut_samples + 50:
-                        time_ms_array = time_ms_array[cut_samples:]
-                        ppg_array = ppg_array[cut_samples:]
+            # Đổi đơn vị thời gian, ước lượng fs và bỏ 2 giây đầu (dùng chung với endpoint HTTP)
+            time_ms_array, ppg_array, fs = prepare_recording(
+                df[time_col].to_numpy(dtype=float), df[ppg_col].to_numpy(dtype=float)
+            )
 
             logger.info(
                 f"[Record {record_id}] Extracting HRV features (fs={fs:.2f}Hz, samples after 2s trim={len(ppg_array)})..."
