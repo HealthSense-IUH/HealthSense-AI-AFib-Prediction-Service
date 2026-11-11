@@ -46,6 +46,38 @@ adds `PPG_AC`: the mean absolute normalized autocorrelation over non-zero lags,
 matching the V6 training implementation. V6 consumes the 14 features declared
 in its bundle/card.
 
+## Computational cost
+
+`scripts/benchmark_inference.py` loads the V6 model through `PredictionService`
+(SHA-256 check against the card, then deserialisation) and runs the service
+pipeline (`prepare_recording`, `analyse_recording`) on 72 s excerpts of real
+recordings. Results depend on the hardware, which is recorded in the output.
+
+Result on 140 non-overlapping 72 s excerpts (up to four per recording) of the 35
+MIMIC PERform AF recordings (fingertip PPG, 125 Hz), measured on an Intel Core
+i7-10850H laptop CPU (6 cores, 12 threads, 32 GB RAM, Windows 11, Python 3.15,
+scikit-learn 1.9.1, XGBoost 3.4.0); see `docs/benchmark_v6_mimic_perform_af.json`:
+
+| Quantity | Value |
+|---|---|
+| Model file | 1,790 MiB |
+| Start-up (SHA-256 check + loading) | 6.2 s |
+| Process memory after loading | 1.98 GB (+1.84 GB for the model) |
+| Window analysis per 72 s recording (5 windows: quality gate, features, model, rule) | median 1.03 s, 95th percentile 1.15 s |
+| Model call per window | median 184 ms, 95th percentile 253 ms |
+| Windows accepted by the quality gate | 699 / 700 |
+
+The timing excludes the S3 download, the whole-recording display features and
+the callback to the Core Service. MIMIC PERform AF is part of the training
+data, so the benchmark does not report alert decisions: they would not be a
+performance estimate. Deployments need about 2 GB of memory per worker for the
+model.
+
+```bash
+pip install -r requirements-dev.txt
+python scripts/benchmark_inference.py --model app/models/v6_stacking.pkl \n    --card app/models/v6_stacking.json \n    --recordings <ml-lab>/data/raw/mimic_perform/af <ml-lab>/data/raw/mimic_perform/non-af \n    --time-column Time --ppg-column PPG --out benchmark.json
+```
+
 ## Local use
 
 ```bash
