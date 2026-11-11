@@ -12,6 +12,7 @@ from app.config import settings
 from app.services.feature_engineering import extract_features_from_csv_data
 from app.services.prediction import prediction_service
 from app.services.s3_client import s3_client
+from app.services.windowing import analyse_recording
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -171,9 +172,19 @@ class RabbitMQConsumer:
                 features["chartData"] = []
             # --------------------------------------
 
-            # 3. Chạy model dự đoán
-            logger.info(f"[Record {record_id}] Running AFib prediction...")
-            _, afib_probability = prediction_service.predict(features)
+            # 3. Dự đoán theo cửa sổ 30 s / bước 10 s và quy tắc temporal persistence.
+            # confidence = trung bình P_meta của các cửa sổ qua SQI; chi tiết từng cửa sổ và cờ
+            # cảnh báo đi kèm trong hrvFeaturesJson nên hợp đồng callback với Core giữ nguyên.
+            logger.info(f"[Record {record_id}] Running window-level AFib prediction...")
+            analysis = analyse_recording(time_ms_array, ppg_array, fs, prediction_service)
+            afib_probability = round(analysis["meanProbability"], 4)
+            features["windowAnalysis"] = analysis
+            features["afAlert"] = analysis["alert"]
+            logger.info(
+                f"[Record {record_id}] Windows accepted={analysis['acceptedWindows']} "
+                f"rejected={analysis['rejectedWindows']} alert={analysis['alert']} "
+                f"branch={analysis['alertBranch']}"
+            )
 
             if afib_probability < 0.30:
                 callback_label = "NORMAL"

@@ -164,6 +164,17 @@ class PredictionService:
         return result
 
     def predict(self, features_dict: dict) -> tuple[str, float]:
+        probability, _ = self.predict_with_base_probabilities(features_dict)
+        return "AFib_Probability", round(probability, 4)
+
+    def predict_with_base_probabilities(
+        self, features_dict: dict
+    ) -> tuple[float, dict[str, float]]:
+        """Raw AF probability and, for the V6 stacking bundle, each base learner's probability.
+
+        The base probabilities give the disagreement sigma_dis used by the temporal persistence
+        rule; non-stacking models return an empty dict.
+        """
         if not self.is_model_loaded or self.model is None:
             raise RuntimeError(f"Model '{self.active_model_file}' is not loaded.")
         missing = [name for name in self.expected_features if name not in features_dict]
@@ -179,12 +190,14 @@ class PredictionService:
         if not np.isfinite(input_df.to_numpy(dtype=float)).all():
             raise ValueError("Model features must all be finite numbers.")
 
+        base_output: dict[str, float] = {}
         if isinstance(self.model, dict):
             bases = self.model["base_models"]
             meta = self.model["meta"]
             base_probabilities = pd.DataFrame(
                 {name: base.predict_proba(input_df)[:, 1] for name, base in bases.items()}
             )
+            base_output = {name: float(base_probabilities[name].iloc[0]) for name in bases}
             meta_names = self._extract_feature_names(meta)
             meta_input = (
                 base_probabilities[meta_names] if meta_names else base_probabilities.to_numpy()
@@ -196,7 +209,7 @@ class PredictionService:
             classes = list(getattr(self.model, "classes_", [0, 1]))
         else:
             predicted = str(self.model.predict(input_df)[0]).strip().lower()
-            return "AFib_Probability", float(predicted in ("1", "1.0", "afib", "true"))
+            return float(predicted in ("1", "1.0", "afib", "true")), {}
 
         positive = [
             index
@@ -208,7 +221,7 @@ class PredictionService:
         probability = float(probabilities[positive[0]])
         if not np.isfinite(probability) or not 0 <= probability <= 1:
             raise ValueError("Model returned an invalid probability.")
-        return "AFib_Probability", round(probability, 4)
+        return probability, base_output
 
 
 prediction_service = PredictionService()

@@ -20,6 +20,7 @@ from app.services.feature_engineering import (
     extract_hrv_features,
 )
 from app.services.prediction import prediction_service
+from app.services.windowing import analyse_recording
 
 router = APIRouter(prefix="/api", tags=["Prediction"])
 
@@ -145,17 +146,16 @@ async def predict_from_csv(file: UploadFile = File(...)):
             if dt > 0:
                 fs = 1.0 / dt
 
-        # Trích xuất đặc trưng
+        # Đặc trưng của cả bản ghi (hiển thị) + dự đoán theo cửa sổ 30 s / bước 10 s
         features = extract_features_from_csv_data(time_ms_array, ppg_array, fs=fs)
-
-        # Gọi model
-        prediction_label, confidence = prediction_service.predict(features)
+        analysis = analyse_recording(time_ms_array, ppg_array, fs, prediction_service)
 
         return PredictionResponse(
-            prediction=prediction_label,
-            confidence=round(confidence, 4),
+            prediction="AFib_Probability",
+            confidence=round(analysis["meanProbability"], 4),
             features=HRVFeatures(**features),
             model_version=prediction_service.model_version,
+            window_analysis=analysis,
         )
     except PoorSignalQualityError as pe:
         raise HTTPException(status_code=422, detail=str(pe)) from pe

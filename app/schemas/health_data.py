@@ -58,6 +58,13 @@ class PredictionResponse(BaseModel):
         ),
         examples=["V6_RESEARCH_FREEZE_2026_09"],
     )
+    window_analysis: dict | None = Field(
+        default=None,
+        description=(
+            "Kết quả theo cửa sổ 30 s / bước 10 s: P_meta và sigma_dis từng cửa sổ, cửa sổ bị "
+            "cổng SQI loại, xác suất trung bình và quyết định của quy tắc temporal persistence."
+        ),
+    )
 
 
 class HealthCheckResponse(BaseModel):
