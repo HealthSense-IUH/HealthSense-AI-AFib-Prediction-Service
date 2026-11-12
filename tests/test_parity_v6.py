@@ -8,8 +8,9 @@ Signals: real MIMIC PERform AF recordings from the ML-Lab repository, resampled 
 of the training domains and the wristband (125 Hz MIMIC, 100 Hz wristband/Liu, 50 Hz PulseWatch,
 32 Hz DeepBeat), in 30 s and 60 s windows.
 
-Needs a checkout of HealthSense-MachineLearning-Lab (src/, data/raw/mimic_perform/ and the
-feature scripts in notebooks/v5/scripts and notebooks/v6/scripts). Set ML_LAB_PATH or place the
+Needs a checkout of HealthSense-MachineLearning-Lab: the core package, data/raw/mimic_perform/ and the
+feature scripts. Both repository layouts are supported: the numbered layout (healthsense_core/,
+1_prepare_data/, archive/) and the earlier one (src/, data/, notebooks/). Set ML_LAB_PATH or place the
 repository next to this one; otherwise the tests are skipped, unless PARITY_REQUIRED=1 (as in CI),
 in which case a missing checkout fails the run.
 """
@@ -28,13 +29,27 @@ ML_LAB = Path(
     os.environ.get("ML_LAB_PATH", SERVICE_ROOT.parent / "HealthSense-MachineLearning-Lab")
 ).resolve()
 
+NUMBERED = ML_LAB / "healthsense_core"  # layout since 2026-11 (numbered folders)
+LAB_CORE_PARENT = ML_LAB if NUMBERED.is_dir() else ML_LAB / "src"
+LAB_RAW = ML_LAB / ("1_prepare_data/data" if NUMBERED.is_dir() else "data") / "raw/mimic_perform"
 LAB_FEATURE_SCRIPTS = (
-    "notebooks/v5/scripts/build_cosen_ac_features.py",
-    "notebooks/v5/scripts/deepbeat_frozen_v5_external.py",
-    "notebooks/v5/scripts/liu_pseudo30_frozen_v5.py",
-    "notebooks/v5/scripts/peakdet_pac_pvc_frozen_v5.py",
-    "notebooks/v5/scripts/pulsewatch_frozen_v5_external.py",
-    "notebooks/v6/scripts/extract_deepbeat_v6_features.py",
+    (
+        "archive/v5/scripts/build_cosen_ac_features.py",
+        "archive/v5/scripts/deepbeat_frozen_v5_external.py",
+        "1_prepare_data/scripts/v5_extractors/liu_pseudo30_frozen_v5.py",
+        "1_prepare_data/scripts/v5_extractors/peakdet_pac_pvc_frozen_v5.py",
+        "1_prepare_data/scripts/v5_extractors/pulsewatch_frozen_v5_external.py",
+        "1_prepare_data/scripts/extract_deepbeat_v6_features.py",
+    )
+    if NUMBERED.is_dir()
+    else (
+        "notebooks/v5/scripts/build_cosen_ac_features.py",
+        "notebooks/v5/scripts/deepbeat_frozen_v5_external.py",
+        "notebooks/v5/scripts/liu_pseudo30_frozen_v5.py",
+        "notebooks/v5/scripts/peakdet_pac_pvc_frozen_v5.py",
+        "notebooks/v5/scripts/pulsewatch_frozen_v5_external.py",
+        "notebooks/v6/scripts/extract_deepbeat_v6_features.py",
+    )
 )
 HRV_V6 = (
     "HR_mean", "Mean_NN", "SDNN", "RMSSD", "NN50", "pNN50", "CV",
@@ -56,9 +71,7 @@ RTOL = 1e-9
 
 
 def _lab_available() -> bool:
-    return (ML_LAB / "src/healthsense_core").is_dir() and (
-        ML_LAB / "data/raw/mimic_perform"
-    ).is_dir()
+    return (LAB_CORE_PARENT / "healthsense_core").is_dir() and LAB_RAW.is_dir()
 
 
 def _resample(x: np.ndarray, fs_out: int) -> np.ndarray:
@@ -100,7 +113,7 @@ class ParityEnvironmentTest(unittest.TestCase):
 class ParityV6Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        for p in (str(SERVICE_ROOT), str(ML_LAB / "src")):
+        for p in (str(SERVICE_ROOT), str(LAB_CORE_PARENT)):
             if p not in sys.path:
                 sys.path.insert(0, p)
         import pandas as pd
@@ -120,7 +133,7 @@ class ParityV6Test(unittest.TestCase):
         }
         cls.windows = []
         for group, record in RECORDS:
-            path = ML_LAB / "data/raw/mimic_perform" / group / f"{record}_data.csv"
+            path = LAB_RAW / group / f"{record}_data.csv"
             ppg = pd.read_csv(path, usecols=["PPG"])["PPG"].to_numpy(float)
             for fs in RATES:
                 x = _resample(ppg, fs)

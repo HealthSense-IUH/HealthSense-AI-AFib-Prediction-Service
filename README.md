@@ -27,7 +27,7 @@ The temporal persistence rule raises an alert if either branch holds:
 - P_meta ≥ 0.90 with σ ≤ 0.05 in 2 consecutive windows.
 
 A rejected window resets both counters. The thresholds are the frozen values of
-the research protocol (ML Lab `results/v6/FROZEN_GLOBAL_RULE_V2.json`).
+the research protocol (ML Lab `3_evaluation/results/FROZEN_GLOBAL_RULE_V2.json`).
 
 ## Models
 
@@ -79,7 +79,7 @@ model.
 
 ```bash
 pip install -r requirements-dev.txt
-python scripts/benchmark_inference.py --model app/models/v6_stacking.pkl \n    --card app/models/v6_stacking.json \n    --recordings <ml-lab>/data/raw/mimic_perform/af <ml-lab>/data/raw/mimic_perform/non-af \n    --time-column Time --ppg-column PPG --out benchmark.json
+python scripts/benchmark_inference.py --model app/models/v6_stacking.pkl \n    --card app/models/v6_stacking.json \n    --recordings <ml-lab>/1_prepare_data/data/raw/mimic_perform/af <ml-lab>/1_prepare_data/data/raw/mimic_perform/non-af \n    --time-column Time --ppg-column PPG --out benchmark.json
 ```
 
 ## Local use

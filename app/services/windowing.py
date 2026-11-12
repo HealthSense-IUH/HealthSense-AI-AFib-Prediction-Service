@@ -12,7 +12,7 @@ The temporal persistence rule then raises an alert when either branch is met:
   consecutive windows (40 s).
 
 A window rejected by the quality gate resets both counters. The thresholds are the frozen values
-of the research protocol (ML Lab results/v6/FROZEN_GLOBAL_RULE_V2.json).
+of the research protocol (ML Lab 3_evaluation/results/FROZEN_GLOBAL_RULE_V2.json).
 """
 
 from __future__ import annotations
