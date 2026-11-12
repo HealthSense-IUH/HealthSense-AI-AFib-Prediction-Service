@@ -79,6 +79,10 @@ jobs:
         repository: HealthSense-IUH/HealthSense-MachineLearning-Lab
         path: ml-lab
         sparse-checkout: |
+          healthsense_core
+          1_prepare_data/data/raw/mimic_perform
+          1_prepare_data/scripts
+          archive/v5/scripts
           src
           data/raw/mimic_perform
           notebooks/v5/scripts
