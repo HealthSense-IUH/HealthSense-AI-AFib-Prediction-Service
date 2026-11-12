@@ -2,8 +2,32 @@
 
 FastAPI service for PPG-based suspected-AF screening. The default model is
 **V6C stacking**: ExtraTrees, RandomForest and XGBoost feed a StandardScaler +
-LogisticRegression meta model. Inference returns the raw meta probability;
-the research calibrator and temporal alert rules are not enabled.
+LogisticRegression meta model. Each 30 s window returns the raw meta probability;
+the temporal persistence rule turns the window results into an alert decision.
+The research Platt calibrator is not enabled.
+
+## Processing
+
+The RabbitMQ consumer and `POST /api/predict-csv` prepare a recording with the
+same function, `app/services/recording.py`:
+
+1. convert the time column to milliseconds if it is in seconds;
+2. estimate the sampling rate from the first 100 samples;
+3. drop the first 2 s (sensor start-up transient). A 72 s recording from the
+   mobile app leaves 70 s.
+
+`app/services/windowing.py` then splits the signal into 30 s windows with a
+10 s step (five windows for 70 s). Each window passes the signal-quality gate
+(spectral concentration ≥ 0.70, ≥ 10 valid beats, ≥ 80 % valid NN intervals,
+heart rate 30–220 bpm) before its 14 features go to the model.
+
+The temporal persistence rule raises an alert if either branch holds:
+
+- P_meta ≥ 0.80 with base-learner disagreement σ ≤ 0.05 in 5 consecutive windows;
+- P_meta ≥ 0.90 with σ ≤ 0.05 in 2 consecutive windows.
+
+A rejected window resets both counters. The thresholds are the frozen values of
+the research protocol (ML Lab `results/v6/FROZEN_GLOBAL_RULE_V2.json`).
 
 ## Models
 
@@ -21,6 +45,42 @@ The service extracts HRV features with the existing signal/SQI pipeline and
 adds `PPG_AC`: the mean absolute normalized autocorrelation over non-zero lags,
 matching the V6 training implementation. V6 consumes the 14 features declared
 in its bundle/card.
+
+## Computational cost
+
+`scripts/benchmark_inference.py` loads the V6 model through `PredictionService`
+(SHA-256 check against the card, then deserialisation) and runs the service
+pipeline (`prepare_recording`, `analyse_recording`) on 72 s excerpts of real
+recordings. Results depend on the hardware, which is recorded in the output.
+
+Result on 140 non-overlapping 72 s excerpts (up to four per recording) of the 35
+MIMIC PERform AF recordings (fingertip PPG, 125 Hz), measured on an Intel Core
+i7-10850H laptop CPU (6 cores, 12 threads, 32 GB RAM, Windows 11, Python 3.15,
+scikit-learn 1.9.1, XGBoost 3.4.0); see `docs/benchmark_v6_mimic_perform_af.json`:
+
+| Quantity | Value |
+|---|---|
+| Model file | 1.88 GB |
+| Model components in memory | Extra Trees 1.44 GB (500 trees, 18.0 M nodes), Random Forest 0.43 GB (500 trees, 5.4 M nodes), XGBoost 2.5 MB |
+| Start-up (SHA-256 check + loading) | 6.0 s |
+| Process memory after loading | 2.08 GB (+1.92 GB for the model) |
+| Window analysis per 72 s recording (5 windows: quality gate, features, model, rule) | median 0.94 s, 95th percentile 1.05 s |
+| Model call per window | median 164 ms, 95th percentile 234 ms |
+| Windows accepted by the quality gate | 699 / 700 |
+
+Over four runs on the same machine, the median time per recording ranged from
+0.94 to 1.03 s and the median model call from 164 to 184 ms; start-up took 6–7 s.
+
+The timing excludes the S3 download, the whole-recording display features and
+the callback to the Core Service. MIMIC PERform AF is part of the training
+data, so the benchmark does not report alert decisions: they would not be a
+performance estimate. Deployments need about 2 GB of memory per worker for the
+model.
+
+```bash
+pip install -r requirements-dev.txt
+python scripts/benchmark_inference.py --model app/models/v6_stacking.pkl \n    --card app/models/v6_stacking.json \n    --recordings <ml-lab>/data/raw/mimic_perform/af <ml-lab>/data/raw/mimic_perform/non-af \n    --time-column Time --ppg-column PPG --out benchmark.json
+```
 
 ## Local use
 
@@ -101,9 +161,13 @@ requests keep their existing behavior.
 ```bash
 ruff check .
 ruff format --check .
-python -m unittest discover -s tests -p 'test_v6.py'
+python -m unittest discover -s tests -p 'test_*.py'
 python -m app.services.verify_model
 ```
+
+`tests/test_parity_v6.py` compares feature extraction with the ML Lab code. It
+needs a checkout of HealthSense-MachineLearning-Lab next to this repository, or
+`ML_LAB_PATH`; otherwise it is skipped locally. CI runs it with the checkout.
 
 The Docker smoke check verifies loading and execution, not clinical performance.
 Research evaluation and scope are described in the model card.

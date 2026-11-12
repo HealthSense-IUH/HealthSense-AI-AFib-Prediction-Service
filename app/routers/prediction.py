@@ -2,7 +2,6 @@
 
 import io
 
-import numpy as np
 import pandas as pd
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
@@ -20,6 +19,7 @@ from app.services.feature_engineering import (
     extract_hrv_features,
 )
 from app.services.prediction import prediction_service
+from app.services.recording import prepare_recording
 from app.services.windowing import analyse_recording
 
 router = APIRouter(prefix="/api", tags=["Prediction"])
@@ -132,19 +132,10 @@ async def predict_from_csv(file: UploadFile = File(...)):
                 detail=f"File CSV phải có cột thời gian và tín hiệu (VD: '{time_col}' và '{ppg_col}')",
             )
 
-        time_ms_array = np.asarray(df[time_col].values, dtype=float)
-        ppg_array = np.asarray(df[ppg_col].values, dtype=float)
-
-        # Nếu cột time nhỏ (ví dụ tính bằng giây), chuyển sang ms
-        if np.max(time_ms_array) < 100000 and np.mean(np.diff(time_ms_array)) < 1.0:
-            time_ms_array = time_ms_array * 1000.0
-
-        # Tính tần số lấy mẫu (fs) tự động
-        fs = 125.0  # Default cho MIMIC
-        if len(time_ms_array) >= 2:
-            dt = np.mean(np.diff(time_ms_array[: min(100, len(time_ms_array))])) / 1000.0
-            if dt > 0:
-                fs = 1.0 / dt
+        # Đổi đơn vị thời gian, ước lượng fs và bỏ 2 giây đầu, giống hệt consumer RabbitMQ
+        time_ms_array, ppg_array, fs = prepare_recording(
+            df[time_col].to_numpy(dtype=float), df[ppg_col].to_numpy(dtype=float)
+        )
 
         # Đặc trưng của cả bản ghi (hiển thị) + dự đoán theo cửa sổ 30 s / bước 10 s
         features = extract_features_from_csv_data(time_ms_array, ppg_array, fs=fs)

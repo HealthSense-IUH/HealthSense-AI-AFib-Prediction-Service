@@ -70,8 +70,8 @@ jobs:
     - name: Install test dependencies
       run: python -m pip install -r requirements.txt
 
-    - name: Check V6 inference and PPG feature parity
-      run: python -m unittest discover -s tests -p 'test_v6.py'
+    - name: Unit tests (V6 inference, windowing and temporal rule, recording preparation)
+      run: python -m unittest discover -s tests -p 'test_*.py' -v
 
     - name: Check out ML Lab for feature parity
       uses: actions/checkout@v4

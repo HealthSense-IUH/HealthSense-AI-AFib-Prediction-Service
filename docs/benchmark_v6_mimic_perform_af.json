@@ -1,0 +1,1182 @@
+{
+ "environment": {
+  "platform": "Windows-11-10.0.28000-SP0",
+  "processor": "Intel(R) Core(TM) i7-10850H CPU @ 2.70GHz",
+  "logical_cpus": 12,
+  "physical_cpus": 6,
+  "ram_gib": 31.7,
+  "python": "3.15.2",
+  "packages": {
+   "numpy": "2.5.4",
+   "scipy": "1.18.1",
+   "sklearn": "1.9.1",
+   "xgboost": "3.4.0",
+   "joblib": "1.6.0",
+   "pandas": "3.1.1"
+  }
+ },
+ "model": {
+  "file_size_gb": 1.877,
+  "startup_s_sha256_and_load": 6.03,
+  "rss_increase_gb": 1.922,
+  "rss_after_load_gb": 2.077,
+  "components": {
+   "ExtraTrees": {
+    "trees": 500,
+    "nodes": 18003990,
+    "median_depth": 44,
+    "tree_arrays_gb": 1.44
+   },
+   "RandomForest": {
+    "trees": 500,
+    "nodes": 5395300,
+    "median_depth": 38,
+    "tree_arrays_gb": 0.432
+   },
+   "XGBoost": {
+    "booster_mb": 2.45
+   }
+  }
+ },
+ "recordings": 35,
+ "excerpts": 140,
+ "recording_seconds": 72.0,
+ "latency_ms_per_72s_recording": {
+  "n": 140,
+  "median": 936.39,
+  "p95": 1046.55,
+  "max": 1104.23
+ },
+ "model_call_ms_per_window": {
+  "n": 699,
+  "median": 164.04,
+  "p95": 234.09,
+  "max": 270.45
+ },
+ "windows_total": 700,
+ "windows_accepted": 699,
+ "window_acceptance_rate": 0.9986,
+ "excerpts_without_accepted_window": 0,
+ "rows": [
+  {
+   "recording": "af/mimic_perform_af_001_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 1057.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_001_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 1048.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_001_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 1026.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_001_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 1071.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_002_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 969.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_002_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 952.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_002_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 986.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_002_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 1074.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_003_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 939.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_003_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 972.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_003_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 1037.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_003_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 1032.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_004_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 991.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_004_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 1104.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_004_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 1085.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_004_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 845.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_005_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 916.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_005_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 880.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_005_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 983.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_005_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 941.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_006_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 945.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_006_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 1045.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_006_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 926.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_006_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 888.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_007_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 970.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_007_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 932.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_007_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 844.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_007_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 932.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_008_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 920.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_008_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 984.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_008_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 877.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_008_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 971.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_009_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 858.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_009_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 912.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_009_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 942.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_009_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 926.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_010_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 831.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_010_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 910.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_010_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 900.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_010_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 987.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_011_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 939.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_011_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 930.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_011_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 845.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_011_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 981.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_012_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 948.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_012_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 937.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_012_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 1030.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_012_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 902.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_013_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 909.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_013_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 941.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_013_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 914.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_013_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 986.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_014_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 858.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_014_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 1046.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_014_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 942.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_014_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 921.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_015_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 962.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_015_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 893.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_015_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 981.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_015_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 900.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_016_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 947.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_016_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 1043.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_016_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 900.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_016_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 1020.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_017_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 965.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_017_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 945.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_017_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 870.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_017_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 961.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_018_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 899.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_018_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 932.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_018_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 1013.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_018_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 974.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_019_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 956.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_019_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 952.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_019_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 1002.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "af/mimic_perform_af_019_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 941.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_001_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 857.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_001_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 897.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_001_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 873.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_001_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 942.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_002_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 914.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_002_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 927.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_002_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 879.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_002_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 887.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_003_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 828.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_003_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 992.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_003_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 910.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_003_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 912.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_004_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 886.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_004_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 981.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_004_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 983.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_004_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 945.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_005_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 935.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_005_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 918.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_005_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 880.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_005_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 905.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_006_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 884.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_006_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 872.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_006_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 924.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_006_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 902.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_007_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 868.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_007_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 971.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_007_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 994.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_007_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 949.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_008_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 968.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_008_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 864.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_008_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 872.2,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_008_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 1006.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_009_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 922.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_009_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 938.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_009_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 947.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_009_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 1009.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_010_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 897.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_010_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 1049.5,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_010_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 918.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_010_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 885.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_011_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 960.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_011_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 916.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_011_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 862.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_011_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 940.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_012_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 975.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_012_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 913.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_012_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 939.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_012_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 775.4,
+   "accepted_windows": 4,
+   "rejected_windows": 1
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_013_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 904.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_013_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 910.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_013_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 985.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_013_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 853.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_014_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 951.4,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_014_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 963.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_014_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 883.0,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_014_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 967.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_015_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 885.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_015_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 897.1,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_015_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 889.8,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_015_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 932.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_016_data",
+   "excerpt": 0,
+   "fs_hz": 125.0,
+   "latency_ms": 897.3,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_016_data",
+   "excerpt": 1,
+   "fs_hz": 125.0,
+   "latency_ms": 881.6,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_016_data",
+   "excerpt": 2,
+   "fs_hz": 125.0,
+   "latency_ms": 1025.9,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  },
+  {
+   "recording": "non-af/mimic_perform_non_af_016_data",
+   "excerpt": 3,
+   "fs_hz": 125.0,
+   "latency_ms": 886.7,
+   "accepted_windows": 5,
+   "rejected_windows": 0
+  }
+ ]
+}
