@@ -9,6 +9,8 @@ các lựa chọn đó khớp với model leakage đời v1–v3, không khớp 
 """
 
 import numpy as np
+
+# pyrefly: ignore[untyped-import]
 from scipy.signal import butter, filtfilt
 
 from app.services.hrv_v4 import (

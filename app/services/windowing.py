@@ -17,7 +17,7 @@ of the research protocol (ML Lab 3_evaluation/results/FROZEN_GLOBAL_RULE_V2.json
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Any, Protocol, TypedDict
 
 import numpy as np
 
@@ -26,13 +26,22 @@ from app.services.hrv_v4 import PoorSignalQualityError
 
 WINDOW_S = 30.0
 STEP_S = 10.0
-FIVE_WINDOW_BRANCH = {
+
+
+class _BranchSpec(TypedDict):
+    name: str
+    p_min: float
+    sigma_max: float
+    length: int
+
+
+FIVE_WINDOW_BRANCH: _BranchSpec = {
     "name": "five_window_persistence",
     "p_min": 0.80,
     "sigma_max": 0.05,
     "length": 5,
 }
-TWO_WINDOW_BRANCH = {
+TWO_WINDOW_BRANCH: _BranchSpec = {
     "name": "two_window_high_confidence",
     "p_min": 0.90,
     "sigma_max": 0.05,
@@ -41,13 +50,15 @@ TWO_WINDOW_BRANCH = {
 
 
 class WindowPredictor(Protocol):
-    def predict_with_base_probabilities(self, features: dict) -> tuple[float, dict[str, float]]: ...
+    def predict_with_base_probabilities(
+        self, features: dict, /
+    ) -> tuple[float, dict[str, float]]: ...
 
 
 def window_slices(n_samples: int, fs: float) -> list[tuple[int, int]]:
     """Sample index ranges of all complete 30 s windows with a 10 s step."""
-    n_win = int(round(WINDOW_S * fs))
-    n_step = int(round(STEP_S * fs))
+    n_win = round(WINDOW_S * fs)
+    n_step = round(STEP_S * fs)
     if n_win <= 0 or n_step <= 0 or n_samples < n_win:
         return []
     return [(start, start + n_win) for start in range(0, n_samples - n_win + 1, n_step)]
@@ -85,7 +96,11 @@ def analyse_recording(time_ms, ppg, fs: float, predictor: WindowPredictor) -> di
 
     windows = []
     for index, (start, stop) in enumerate(slices):
-        window = {"index": index, "startS": round(start / fs, 2), "endS": round(stop / fs, 2)}
+        window: dict[str, Any] = {
+            "index": index,
+            "startS": round(start / fs, 2),
+            "endS": round(stop / fs, 2),
+        }
         try:
             features = extract_features_from_csv_data(time_ms[start:stop], ppg[start:stop], fs=fs)
             p_meta, base = predictor.predict_with_base_probabilities(features)
