@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     # RabbitMQ Config
     RABBITMQ_URL: str = os.getenv("RABBITMQ_URL", "")
     RABBITMQ_QUEUE: str = os.getenv("RABBITMQ_QUEUE", "health.record.processing.queue")
+    AI_MAX_WORKERS: int = int(os.getenv("AI_MAX_WORKERS", "2"))
 
     # AWS S3 / MinIO Config (Không hardcode credentials trên mã nguồn để đảm bảo bảo mật tuyệt đối)
     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
@@ -24,8 +25,9 @@ class Settings(BaseSettings):
     # V6C stacking bundle and matching JSON card, downloaded before Docker build.
     MODEL_FILE: str = os.getenv("MODEL_FILE", "v6_stacking.pkl")
 
-    # Core Service Webhook URL
+    # Core Service Webhook URL & Secret
     CORE_CALLBACK_URL: str = os.getenv("CORE_CALLBACK_URL", "")
+    AI_CALLBACK_SECRET: str = os.getenv("AI_CALLBACK_SECRET", "")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

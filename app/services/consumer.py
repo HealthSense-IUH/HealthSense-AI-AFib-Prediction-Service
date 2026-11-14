@@ -1,7 +1,12 @@
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
+import hashlib
+import hmac
 import io
 import json
 import logging
+import time
+from urllib.parse import urlsplit
 
 import aio_pika
 import httpx
@@ -17,6 +22,69 @@ from app.services.windowing import analyse_recording
 
 logger = logging.getLogger("uvicorn.error")
 
+CALLBACK_RETRY_DELAYS = (1.0, 3.0, 7.0)
+
+
+def _redact_broker_url(url: str) -> str:
+    """Che thông tin xác thực trong RABBITMQ_URL trước khi ghi log."""
+    try:
+        parsed = urlsplit(url)
+        host = parsed.hostname or "unknown"
+        port = f":{parsed.port}" if parsed.port else ""
+        path = parsed.path or ""
+        return f"{parsed.scheme}://{host}{port}{path}"
+    except Exception:
+        return "<redacted>"
+
+
+def _build_callback_headers(record_id: int, status_or_label: str) -> dict[str, str]:
+    """Tạo chữ ký HMAC-SHA256 cho callback gửi về Core Service (nếu cấu hình secret)."""
+    timestamp = str(int(time.time()))
+    headers: dict[str, str] = {"X-AI-Timestamp": timestamp}
+    secret = (settings.AI_CALLBACK_SECRET or "").strip()
+    if secret:
+        canonical = f"{timestamp}.{record_id}.{status_or_label}"
+        signature = hmac.new(
+            secret.encode("utf-8"), canonical.encode("utf-8"), hashlib.sha256
+        ).hexdigest()
+        headers["X-AI-Signature"] = signature
+    return headers
+
+
+def _send_callback_with_retry(
+    url: str, payload: dict, record_id: int, status_or_label: str
+) -> bool:
+    """Gửi PATCH callback về Core Service kèm retry backoff khi lỗi mạng hoặc HTTP 5xx."""
+    if not url or not url.strip():
+        logger.warning(f"[Record {record_id}] CORE_CALLBACK_URL not configured, skipping callback.")
+        return False
+    max_attempts = len(CALLBACK_RETRY_DELAYS) + 1
+    for attempt in range(1, max_attempts + 1):
+        try:
+            headers = _build_callback_headers(record_id, status_or_label)
+            with httpx.Client(timeout=10.0) as client:
+                response = client.patch(url, json=payload, headers=headers)
+            status_code = getattr(response, "status_code", 200)
+            if not isinstance(status_code, int) or status_code in (200, 204):
+                return True
+            if status_code < 500 and status_code != 429:
+                logger.error(
+                    f"[Record {record_id}] Callback rejected with client status "
+                    f"{status_code}: {getattr(response, 'text', '')}"
+                )
+                return False
+            logger.warning(
+                f"[Record {record_id}] Callback attempt {attempt}/{max_attempts} failed "
+                f"with status {status_code}"
+            )
+        except Exception as err:
+            logger.warning(
+                f"[Record {record_id}] Callback attempt {attempt}/{max_attempts} error: {err}"
+            )
+        if attempt < max_attempts:
+            time.sleep(CALLBACK_RETRY_DELAYS[attempt - 1])
+    return False
+
 
 class RabbitMQConsumer:
     def __init__(self):
@@ -24,6 +92,9 @@ class RabbitMQConsumer:
         self.channel = None
         self.queue = None
         self._is_running = False
+        max_workers = max(1, int(getattr(settings, "AI_MAX_WORKERS", 2) or 2))
+        self._max_workers = max_workers
+        self._executor: ThreadPoolExecutor | None = None
 
     async def start(self):
         """Kết nối RabbitMQ và bắt đầu lắng nghe hàng đợi."""
@@ -32,9 +103,13 @@ class RabbitMQConsumer:
             return
 
         try:
-            logger.info(f"Connecting to RabbitMQ at {settings.RABBITMQ_URL}...")
+            safe_url = _redact_broker_url(settings.RABBITMQ_URL)
+            logger.info(
+                f"Connecting to RabbitMQ at {safe_url} (prefetch={self._max_workers})..."
+            )
             self.connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
             self.channel = await self.connection.channel()
+            await self.channel.set_qos(prefetch_count=self._max_workers)
 
             # Khai báo queue (durable=True để khớp với cấu hình Queue(..., true) bên Spring Boot)
             self.queue = await self.channel.declare_queue(settings.RABBITMQ_QUEUE, durable=True)
@@ -52,18 +127,28 @@ class RabbitMQConsumer:
         if self.connection and not self.connection.is_closed:
             await self.connection.close()
             logger.info("RabbitMQ connection closed.")
+        if self._executor is not None:
+            self._executor.shutdown(wait=False, cancel_futures=True)
+            self._executor = None
+
+    def _get_executor(self) -> ThreadPoolExecutor:
+        if self._executor is None:
+            self._executor = ThreadPoolExecutor(
+                max_workers=self._max_workers, thread_name_prefix="ai-infer"
+            )
+        return self._executor
 
     async def on_message(self, message: aio_pika.abc.AbstractIncomingMessage):
         """Xử lý mỗi khi có tin nhắn mới từ hàng đợi."""
         async with message.process():
             try:
                 payload_str = message.body.decode("utf-8")
-                logger.info(f"Received message from RabbitMQ: {payload_str}")
                 data = json.loads(payload_str)
 
                 record_id = data.get("recordId")
                 s3_key = data.get("s3Key")
                 user_id = data.get("userId")
+                logger.info(f"Received RabbitMQ message for recordId={record_id}, userId={user_id}")
 
                 if not record_id or not s3_key:
                     logger.error(
@@ -71,11 +156,14 @@ class RabbitMQConsumer:
                     )
                     return
 
-                # Chạy tải S3 và tính toán trong thread pool để không block asyncio loop
-                await asyncio.to_thread(self._process_record_sync, record_id, s3_key, user_id)
+                # Chạy tải S3 và tính toán trong executor giới hạn luồng để ổn định RAM/CPU
+                loop = asyncio.get_running_loop()
+                await loop.run_in_executor(
+                    self._get_executor(), self._process_record_sync, record_id, s3_key, user_id
+                )
 
             except Exception as e:
-                logger.error(f"Error processing message {message.body}: {str(e)}", exc_info=True)
+                logger.error(f"Error processing message: {str(e)}", exc_info=True)
 
     def _process_record_sync(self, record_id: int, s3_key: str, user_id: int):
         """Hàm đồng bộ chạy trong thread pool: tải S3, dự đoán AFib, gửi callback."""
@@ -179,46 +267,38 @@ class RabbitMQConsumer:
                 f"[Record {record_id}] Prediction done: prob={afib_probability:.4f}, label={callback_label}"
             )
 
-            # 4. Gửi HTTP PATCH callback về Core Service
+            # 4. Gửi HTTP PATCH callback về Core Service (kèm retry & HMAC signature)
             callback_payload = {
                 "recordId": record_id,
                 "predictionLabel": callback_label,
                 "confidence": round(afib_probability, 4),
                 "hrvFeaturesJson": json.dumps(features),
+                "afAlert": bool(analysis["alert"]),
+                "modelVersion": settings.MODEL_FILE,
             }
 
             logger.info(
                 f"[Record {record_id}] Sending callback to Core Service: {settings.CORE_CALLBACK_URL}"
             )
-            with httpx.Client(timeout=10.0) as client:
-                response = client.patch(settings.CORE_CALLBACK_URL, json=callback_payload)
-                if response.status_code in [200, 204]:
-                    logger.info(f"[Record {record_id}] Callback successful! Core Service updated.")
-                else:
-                    logger.error(
-                        f"[Record {record_id}] Callback failed with status {response.status_code}: {response.text}"
-                    )
+            if _send_callback_with_retry(
+                settings.CORE_CALLBACK_URL, callback_payload, record_id, callback_label
+            ):
+                logger.info(f"[Record {record_id}] Callback successful! Core Service updated.")
+            else:
+                logger.error(f"[Record {record_id}] Callback exhausted retries.")
 
         except Exception as e:
             logger.error(
                 f"[Record {record_id}] Failed during processing or callback: {str(e)}",
                 exc_info=True,
             )
-            try:
-                fail_url = f"{settings.CORE_CALLBACK_URL}/fail"
-                logger.info(f"[Record {record_id}] Sending fail callback to {fail_url}")
-                with httpx.Client(timeout=10.0) as client:
-                    resp = client.patch(
-                        fail_url, json={"recordId": record_id, "errorReason": str(e)}
-                    )
-                    if resp.status_code in [200, 204]:
-                        logger.info(f"[Record {record_id}] FAIL callback successful.")
-                    else:
-                        logger.error(
-                            f"[Record {record_id}] FAIL callback failed with status {resp.status_code}: {resp.text}"
-                        )
-            except Exception as cb_e:
-                logger.error(f"[Record {record_id}] Could not send FAIL callback: {str(cb_e)}")
+            fail_url = f"{settings.CORE_CALLBACK_URL}/fail"
+            fail_payload = {"recordId": record_id, "errorReason": str(e)}
+            logger.info(f"[Record {record_id}] Sending fail callback to {fail_url}")
+            if _send_callback_with_retry(fail_url, fail_payload, record_id, "FAILED"):
+                logger.info(f"[Record {record_id}] FAIL callback successful.")
+            else:
+                logger.error(f"[Record {record_id}] FAIL callback exhausted retries.")
 
 
 consumer = RabbitMQConsumer()
