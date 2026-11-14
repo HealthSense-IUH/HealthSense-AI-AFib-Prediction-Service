@@ -104,9 +104,7 @@ class RabbitMQConsumer:
 
         try:
             safe_url = _redact_broker_url(settings.RABBITMQ_URL)
-            logger.info(
-                f"Connecting to RabbitMQ at {safe_url} (prefetch={self._max_workers})..."
-            )
+            logger.info(f"Connecting to RabbitMQ at {safe_url} (prefetch={self._max_workers})...")
             self.connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
             self.channel = await self.connection.channel()
             await self.channel.set_qos(prefetch_count=self._max_workers)
