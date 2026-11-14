@@ -1,11 +1,11 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import hmac
 import io
 import json
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlsplit
 
 import aio_pika
