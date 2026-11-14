@@ -202,6 +202,7 @@ class RabbitMQConsumer:
 
             # --- TẠO DỮ LIỆU ĐỒ THỊ BẰNG PYTHON ---
             try:
+                # pyrefly: ignore[untyped-import]
                 import scipy.signal
 
                 from app.services.feature_engineering import butter_bandpass_filter
